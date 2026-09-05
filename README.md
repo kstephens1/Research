@@ -86,6 +86,63 @@ independently. The command prints one console-table row per strategy with its
 signals, trades, final value, profit, and return. Duplicate pairs, mismatched
 list lengths, and more than ten strategies are rejected.
 
+## Jupyter notebooks
+
+Jupyter is useful for running several parameter combinations, comparing the
+results as a DataFrame, and keeping Markdown notes beside each experiment. It
+is optional and is not included in the runtime requirements. Install and start
+JupyterLab inside the project environment with:
+
+```bash
+source .venv/bin/activate
+python -m pip install jupyterlab
+python -m jupyter lab
+```
+
+From a notebook, run the command-line script directly and display its console
+table:
+
+```python
+%run analyze_dmac_multi.py BTC-USD \
+    --fast-windows 5 10 20 \
+    --slow-windows 20 30 50 \
+    --init-cash 1000 \
+    --fee-pct 0.1 \
+    --start 2020-01-01 \
+    --end 2025-01-01
+```
+
+For further filtering and comparison, import the analysis functions instead:
+
+```python
+from datetime import date
+
+import pandas as pd
+
+from analyze_dmac_multi import analyze_dmac_multi
+from analyze_holding import download_close
+
+prices = download_close(
+    "BTC-USD",
+    start=date(2020, 1, 1),
+    end=date(2025, 1, 1),
+)
+results = analyze_dmac_multi(
+    prices,
+    fast_windows=[5, 10, 20],
+    slow_windows=[20, 30, 50],
+    init_cash=1000,
+    fee_pct=0.1,
+)
+
+results_df = pd.DataFrame([vars(result) for result in results])
+results_df.sort_values("total_return", ascending=False)
+```
+
+Use Markdown cells for conclusions and follow-up ideas. All `.ipynb` files and
+generated `.ipynb_checkpoints/` directories are ignored so private research
+notes and cell outputs are not committed accidentally.
+
 ## Tests
 
 The unit tests use synthetic or mocked data and do not require internet access:

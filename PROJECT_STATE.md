@@ -12,6 +12,8 @@
 - All 35 offline tests pass across the three strategy analyzers.
 - Live dated `BTC-USD` Yahoo Finance smoke tests pass for all analyzers.
 - Local `notes.txt` research notes are excluded from version control.
+- README guidance covers interactive DMAC experiments in Jupyter notebooks.
+- All Jupyter notebooks and generated checkpoint directories are excluded from version control.
 
 ## Latest change
 
@@ -23,3 +25,5 @@
 - Added paired multi-strategy DMAC analysis with console-table results and a 10-strategy cap.
 - Verified the 2019 defaults at 84.72% for `(10,30)` and 54.34% for `(20,30)`.
 - Added `notes.txt` to `.gitignore` so private research notes cannot be committed accidentally.
+- Documented optional JupyterLab usage, DataFrame analysis, and notebook hygiene.
+- Added `*.ipynb` to `.gitignore` so all local notebooks remain private.
