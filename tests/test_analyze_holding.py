@@ -66,6 +66,7 @@ class AnalyzeHoldingTests(unittest.TestCase):
             "BTC-USD",
             start="2024-01-01 00:00:00 UTC",
             end="2024-01-10 00:00:00 UTC",
+            auto_adjust=True,
         )
 
     def test_cli_prints_summary(self):

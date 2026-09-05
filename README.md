@@ -143,6 +143,90 @@ Use Markdown cells for conclusions and follow-up ideas. All `.ipynb` files and
 generated `.ipynb_checkpoints/` directories are ignored so private research
 notes and cell outputs are not committed accidentally.
 
+## Compare strategies by symbol
+
+Compare 19 curated long-only timing strategies for any single Yahoo Finance
+ticker. `SPY` remains the default:
+
+```bash
+python compare_strategies_by_symbol.py
+python compare_strategies_by_symbol.py TICKER [options]
+```
+
+Pass another ticker as the first argument, for example:
+
+```bash
+python compare_strategies_by_symbol.py AAPL
+python compare_strategies_by_symbol.py BTC-USD
+python compare_strategies_by_symbol.py '^FTSE'
+```
+
+Symbols beginning with `^` should be quoted so the shell passes them through
+unchanged. Yahoo Finance does not require an API key for these downloads.
+
+The default run uses 2017-01-01 through 2021-12-31 as training data, selects
+the best candidate from each strategy family, and evaluates those frozen
+winners from 2022-01-01 through the latest available trading day. It compares:
+
+- nine dual-moving-average pairs;
+- five price-above-SMA windows;
+- five positive trailing-return windows; and
+- buy and hold as the out-of-sample benchmark.
+
+Selection uses training return, then lower drawdown and fewer completed trades
+as tie-breakers. Signals are delayed by one bar and execute at the next daily
+close, with independent starting capital and a `0.1%` fee per order by default.
+The output includes return, CAGR, drawdown, Sharpe ratio, volatility, exposure,
+and trade counts. Annualized metrics infer the observation frequency, so they
+support both weekday-traded assets and seven-day markets. Override the dates
+and assumptions when needed:
+
+```bash
+python compare_strategies_by_symbol.py SPY \
+  --start 2017-01-01 --split 2022-01-01 --end 2026-01-01 \
+  --init-cash 1000 --fee-pct 0.1
+```
+
+For notebook analysis, import the renamed module directly. Include warm-up
+history before the requested training period so the longest indicators are
+ready at the boundary:
+
+```python
+from datetime import date, timedelta
+
+from analyze_holding import download_close
+from compare_strategies_by_symbol import (
+    WARMUP_CALENDAR_DAYS,
+    compare_strategies,
+)
+
+symbol = "AAPL"
+start = date(2017, 1, 1)
+split = date(2022, 1, 1)
+end = date(2026, 1, 1)
+
+prices = download_close(
+    symbol,
+    start=start - timedelta(days=WARMUP_CALENDAR_DAYS),
+    end=end,
+)
+comparison = compare_strategies(
+    prices,
+    start=start,
+    split=split,
+    end=end,
+    init_cash=1000,
+    fee_pct=0.1,
+)
+
+comparison.training_results
+comparison.selected_training
+comparison.test_results
+```
+
+The comparison is a historical simulation, not evidence that a strategy will
+continue to perform out of sample.
+
 ## Tests
 
 The unit tests use synthetic or mocked data and do not require internet access:

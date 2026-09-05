@@ -99,10 +99,13 @@ def extract_close(data: object) -> pd.Series:
 
 
 def download_close(
-    ticker: str, start: date | None = None, end: date | None = None
+    ticker: str,
+    start: date | None = None,
+    end: date | None = None,
+    auto_adjust: bool = True,
 ) -> pd.Series:
     """Download daily close prices from Yahoo Finance."""
-    kwargs: dict[str, str] = {}
+    kwargs: dict[str, str | bool] = {"auto_adjust": auto_adjust}
     if start is not None:
         kwargs["start"] = f"{start.isoformat()} 00:00:00 UTC"
     if end is not None:
